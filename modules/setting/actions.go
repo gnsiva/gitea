@@ -14,17 +14,18 @@ import (
 // Actions settings
 var (
 	Actions = struct {
-		Enabled               bool
-		LogStorage            *Storage          // how the created logs should be stored
-		LogRetentionDays      int64             `ini:"LOG_RETENTION_DAYS"`
-		LogCompression        logCompression    `ini:"LOG_COMPRESSION"`
-		ArtifactStorage       *Storage          // how the created artifacts should be stored
-		ArtifactRetentionDays int64             `ini:"ARTIFACT_RETENTION_DAYS"`
-		DefaultActionsURL     defaultActionsURL `ini:"DEFAULT_ACTIONS_URL"`
-		ZombieTaskTimeout     time.Duration     `ini:"ZOMBIE_TASK_TIMEOUT"`
-		EndlessTaskTimeout    time.Duration     `ini:"ENDLESS_TASK_TIMEOUT"`
-		AbandonedJobTimeout   time.Duration     `ini:"ABANDONED_JOB_TIMEOUT"`
-		SkipWorkflowStrings   []string          `ini:"SKIP_WORKFLOW_STRINGS"`
+		Enabled                   bool
+		LogStorage                *Storage          // how the created logs should be stored
+		LogRetentionDays          int64             `ini:"LOG_RETENTION_DAYS"`
+		LogCompression            logCompression    `ini:"LOG_COMPRESSION"`
+		ArtifactStorage           *Storage          // how the created artifacts should be stored
+		ArtifactRetentionDays     int64             `ini:"ARTIFACT_RETENTION_DAYS"`
+		DefaultActionsURL         defaultActionsURL `ini:"DEFAULT_ACTIONS_URL"`
+		ZombieTaskTimeout         time.Duration     `ini:"ZOMBIE_TASK_TIMEOUT"`
+		EndlessTaskTimeout        time.Duration     `ini:"ENDLESS_TASK_TIMEOUT"`
+		AbandonedJobTimeout       time.Duration     `ini:"ABANDONED_JOB_TIMEOUT"`
+		SkipWorkflowStrings       []string          `ini:"SKIP_WORKFLOW_STRINGS"`
+		RunnerStatusFlushInterval time.Duration     `ini:"RUNNER_STATUS_FLUSH_INTERVAL"`
 	}{
 		Enabled:             true,
 		DefaultActionsURL:   defaultActionsURLGitHub,
@@ -114,6 +115,7 @@ func loadActionsFrom(rootCfg ConfigProvider) error {
 	Actions.ZombieTaskTimeout = sec.Key("ZOMBIE_TASK_TIMEOUT").MustDuration(10 * time.Minute)
 	Actions.EndlessTaskTimeout = sec.Key("ENDLESS_TASK_TIMEOUT").MustDuration(3 * time.Hour)
 	Actions.AbandonedJobTimeout = sec.Key("ABANDONED_JOB_TIMEOUT").MustDuration(24 * time.Hour)
+	Actions.RunnerStatusFlushInterval = sec.Key("RUNNER_STATUS_FLUSH_INTERVAL").MustDuration(1 * time.Minute)
 
 	if !Actions.LogCompression.IsValid() {
 		return fmt.Errorf("invalid [actions] LOG_COMPRESSION: %q", Actions.LogCompression)

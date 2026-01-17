@@ -293,7 +293,7 @@ func prepareWorkflowList(ctx *context.Context, workflows []WorkflowInfo) {
 
 	// Check for each run if there is at least one online runner that can run its jobs
 	runErrors := make(map[int64]string)
-	runners, err := db.Find[actions_model.ActionRunner](ctx, actions_model.FindRunnerOptions{
+	runners, _, err := actions_model.FindRunners(ctx, actions_model.FindRunnerOptions{
 		RepoID:        ctx.Repo.Repository.ID,
 		IsOnline:      optional.Some(true),
 		WithAvailable: true,

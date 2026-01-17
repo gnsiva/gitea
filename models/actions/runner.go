@@ -10,6 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"code.gitea.io/gitea/modules/log"
+
+	runnerv1 "code.gitea.io/actions-proto-go/runner/v1"
 	"code.gitea.io/gitea/models/db"
 	repo_model "code.gitea.io/gitea/models/repo"
 	"code.gitea.io/gitea/models/shared/types"
@@ -20,10 +23,26 @@ import (
 	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/translation"
 	"code.gitea.io/gitea/modules/util"
-
-	runnerv1 "code.gitea.io/actions-proto-go/runner/v1"
 	"xorm.io/builder"
 )
+
+// FindRunners returns a list of runners and the total count
+func FindRunners(ctx context.Context, opts FindRunnerOptions) (RunnerList, int64, error) {
+	if err := FlushRunnerStatus(ctx, true); err != nil {
+		log.Warn("FlushRunnerStatus: %v", err)
+	}
+
+	runners, count, err := db.FindAndCount[ActionRunner](ctx, opts)
+	if err != nil {
+		return nil, 0, err
+	}
+
+	for _, runner := range runners {
+		runner.LastOnline, runner.LastActive = GetRunnerStatus(runner.ID, runner.LastOnline, runner.LastActive)
+	}
+
+	return runners, count, nil
+}
 
 // ActionRunner represents runner machines
 //
@@ -269,6 +288,9 @@ func GetRunnerByUUID(ctx context.Context, uuid string) (*ActionRunner, error) {
 	} else if !has {
 		return nil, fmt.Errorf("runner with uuid %s: %w", uuid, util.ErrNotExist)
 	}
+
+	runner.LastOnline, runner.LastActive = GetRunnerStatus(runner.ID, runner.LastOnline, runner.LastActive)
+
 	return &runner, nil
 }
 
@@ -281,6 +303,9 @@ func GetRunnerByID(ctx context.Context, id int64) (*ActionRunner, error) {
 	} else if !has {
 		return nil, fmt.Errorf("runner with id %d: %w", id, util.ErrNotExist)
 	}
+
+	runner.LastOnline, runner.LastActive = GetRunnerStatus(runner.ID, runner.LastOnline, runner.LastActive)
+
 	return &runner, nil
 }
 
