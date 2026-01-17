@@ -12,7 +12,6 @@ import (
 
 	"code.gitea.io/gitea/modules/log"
 
-	runnerv1 "code.gitea.io/actions-proto-go/runner/v1"
 	"code.gitea.io/gitea/models/db"
 	repo_model "code.gitea.io/gitea/models/repo"
 	"code.gitea.io/gitea/models/shared/types"
@@ -23,6 +22,8 @@ import (
 	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/translation"
 	"code.gitea.io/gitea/modules/util"
+
+	runnerv1 "code.gitea.io/actions-proto-go/runner/v1"
 	"xorm.io/builder"
 )
 
