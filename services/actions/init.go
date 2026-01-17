@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"os"
 	"strings"
+	"time"
 
 	actions_model "code.gitea.io/gitea/models/actions"
 	"code.gitea.io/gitea/modules/graceful"
@@ -67,5 +68,19 @@ func Init(ctx context.Context) error {
 	go graceful.GetManager().RunWithCancel(jobEmitterQueue)
 
 	notify_service.RegisterNotifier(NewNotifier())
+
+	go func() {
+		for {
+			select {
+			case <-ctx.Done():
+				return
+			case <-time.After(setting.Actions.RunnerStatusFlushInterval):
+				if err := actions_model.FlushRunnerStatus(ctx, false); err != nil {
+					log.Error("FlushRunnerStatus: %v", err)
+				}
+			}
+		}
+	}()
+
 	return initGlobalRunnerToken(ctx)
 }

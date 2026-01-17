@@ -126,7 +126,7 @@ func Runners(ctx *context.Context) {
 		opts.WithAvailable = true
 	}
 
-	runners, count, err := db.FindAndCount[actions_model.ActionRunner](ctx, opts)
+	runners, count, err := actions_model.FindRunners(ctx, opts)
 	if err != nil {
 		ctx.ServerError("CountRunners", err)
 		return
@@ -347,7 +347,7 @@ func findActionsRunner(ctx *context.Context, rCtx *runnersCtx) *actions_model.Ac
 		panic("invalid actions runner context")
 	}
 
-	got, err := db.Find[actions_model.ActionRunner](ctx, opts)
+	got, _, err := actions_model.FindRunners(ctx, *opts)
 	if err != nil {
 		ctx.ServerError("FindRunner", err)
 		return nil

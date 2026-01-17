@@ -11,7 +11,6 @@ import (
 
 	actions_model "code.gitea.io/gitea/models/actions"
 	auth_model "code.gitea.io/gitea/models/auth"
-	"code.gitea.io/gitea/modules/log"
 	"code.gitea.io/gitea/modules/timeutil"
 	"code.gitea.io/gitea/modules/util"
 
@@ -51,9 +50,7 @@ var withRunner = connect.WithInterceptors(connect.UnaryInterceptorFunc(func(unar
 			runner.LastActive = timeutil.TimeStampNow()
 			cols = append(cols, "last_active")
 		}
-		if err := actions_model.UpdateRunner(ctx, runner, cols...); err != nil {
-			log.Error("can't update runner status: %v", err)
-		}
+		actions_model.UpdateRunnerStatus(ctx, runner.ID, runner.LastOnline, runner.LastActive)
 
 		ctx = context.WithValue(ctx, runnerCtxKey{}, runner)
 		return unaryFunc(ctx, request)
